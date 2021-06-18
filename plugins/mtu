@@ -1,0 +1,4 @@
+set_mtu () {
+    MTU=${MTU:-$1}
+    ip link set ${IFACE} mtu ${MTU}
+}

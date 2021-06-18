@@ -1,0 +1,11 @@
+IFACE=ens19
+MTU=9000
+
+function ifup () {
+    set_mtu
+    link_up
+}
+
+function ifdown () {
+    link_down
+}

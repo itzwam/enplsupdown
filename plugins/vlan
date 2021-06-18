@@ -1,0 +1,4 @@
+function add_vlan () {
+    VLAN=${VLAN:-$1}
+    ip link add link ${PARENT} name ${IFACE} type vlan id ${VLAN}
+}

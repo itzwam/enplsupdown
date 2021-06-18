@@ -1,0 +1,3 @@
+function add_wg () {
+    ip link add ${IFACE} type wireguard
+}

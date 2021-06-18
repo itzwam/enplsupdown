@@ -1,0 +1,23 @@
+function add_address () {
+    for ip in ${@:-$IP}; do
+        ip address add $ip dev ${IFACE}
+    done
+}
+
+function add_address6 () {
+    for ip in ${@:-$IP6}; do
+        ip -6 address add $ip dev ${IFACE}
+    done
+}
+
+function add_vip () {
+    for ip in $@; do
+        ip address add $ip dev lo || /bin/true
+    done
+}
+
+function add_vip6 () {
+    for ip in $@; do
+        ip -6 address add $ip dev lo || /bin/true
+    done
+}

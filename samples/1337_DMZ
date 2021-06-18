@@ -1,0 +1,18 @@
+PARENT=ens19
+IFACE=dmz.1337
+VLAN=1337
+IP=10.12.14.1/24
+MTU=9000
+
+function ifup () {
+	add_vlan
+	add_address
+	add_address 1.3.3.7
+	set_mtu
+    link_up
+}
+
+function ifdown () {
+	link_down
+	link_del || /bin/true
+}

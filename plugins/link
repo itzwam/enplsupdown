@@ -1,0 +1,11 @@
+function link_up () {
+    ip link set up ${IFACE}
+}
+
+function link_down () {
+    ip link set down ${IFACE}
+}
+
+function link_del () {
+    ip link del ${IFACE}
+}

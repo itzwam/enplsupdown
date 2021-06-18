@@ -1,0 +1,15 @@
+PARENT=ens19
+IFACE=guests.20
+VLAN=20
+IP=10.10.20.1/24
+
+function ifup () {
+    add_vlan
+    add_address
+    link_up
+}
+
+function ifdown () {
+	link_down
+    link_del || /bin/true
+}

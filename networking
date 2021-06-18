@@ -1,0 +1,114 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+scratch=$(mktemp -d -t enplsupdown.XXXXXXXXXX)
+function finish {
+  set +x
+  rm -rf "$scratch"
+}
+trap finish EXIT
+
+function init () {
+	export PLUGINSDIR="${PLUGINSDIR:-/usr/local/share/enplsupdown/plugins:/etc/plsnetwork/plugins}"
+}
+
+function load_plugins () {
+	IFS=:
+	for plugindir in $PLUGINSDIR; do
+		IFS=$'\n\t'
+		for plugin in $plugindir/*; do
+			if [[ -f "$plugin" ]]; then
+				echo "[+] Loading $plugin"
+				source $plugin
+			fi
+		done
+	done
+}
+
+## Interface creations
+
+function iface_start () {
+	conf="$1"
+	echo "[+] Parsing ${conf}"
+	source ${conf}
+	set -x
+	ifup
+	set +x
+	echo "[+] Started ${IFACE}"
+}
+
+function networking_start () {
+	if [[ $# -ge 1 ]]; then
+		for i in "$@"; do
+			iface_start "$i"
+		done
+	else
+		for conf in /etc/plsnetwork/auto/*; do
+			if [[ -f "$conf" ]]; then
+				echo "[+] Detected ${conf} file" >&2
+				iface_start "${conf}"
+			fi
+		done
+	fi
+	return
+}
+
+## Interface Deletion
+
+function iface_stop () {
+	conf="$1"
+	echo "[-] Parsing ${conf}"
+	source ${conf}
+	set -x
+	ifdown
+	set +x
+	echo "[-] Stoped ${IFACE}"
+}
+
+function networking_stop () {
+	if [[ $# -ge 1 ]]; then
+		for i in "$@"; do
+			iface_stop "$i"
+		done
+	else
+		for conf in /etc/plsnetwork/auto/*; do
+			if [[ -f "$conf" ]]; then
+				echo "[+] Detected ${conf} file" >&2
+				iface_stop "${conf}"
+			fi
+		done
+	fi
+	return
+}
+
+# Main
+init
+case "${1:-help}" in
+
+	start|stop)
+		load_plugins
+		networking_${1} ${@:2}
+		;;
+
+	restart|reload|force-reload)
+		load_plugins
+		networking_stop ${@:2} || true
+		networking_start ${@:2}
+		;;
+
+	force-stop)
+		load_plugins
+		networking_stop
+		;;
+
+	status)
+		ip -br address && exit 0 || exit $?
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+exit 0
