@@ -1,3 +1,6 @@
 function add_wg () {
+    WG_PRIVATE_KEY=${WG_PRIVATE_KEY:-/etc/wireguard/keys/${IFACE}}
     ip link add ${IFACE} type wireguard
+    wg set ${IFACE} private-key ${WG_PRIVATE_KEY}
+    [[ ! -z "WG_LISTEN_PORT" ]] && wg set ${IFACE} listen-port ${WG_LISTEN_PORT}
 }

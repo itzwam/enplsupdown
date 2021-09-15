@@ -18,13 +18,16 @@ function load_plugins () {
 	IFS=:
 	for plugindir in $PLUGINSDIR; do
 		IFS=$'\n\t'
-		for plugin in $plugindir/*; do
-			if [[ -f "$plugin" ]]; then
-				echo "[+] Loading $plugin"
-				source $plugin
-			fi
-		done
+		if [[ -d "$plugindir" ]]; then
+			for plugin in $plugindir/*; do
+				if [[ -f "$plugin" ]]; then
+					echo "[+] Loading $plugin"
+					source $plugin
+				fi
+			done
+		fi
 	done
+	IFS=$'\n\t'
 }
 
 ## Interface creations
